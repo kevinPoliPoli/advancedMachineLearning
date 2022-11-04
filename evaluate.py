@@ -1,44 +1,46 @@
-def evaluate(epoch, net):
+class Evaluate():    
 
-  net = net.to(DEVICE)
+    def evaluate(epoch, net):
 
-  net.train(False) # Set Network to evaluation mode
+        net = net.to(DEVICE)
 
-  running_loss=0
-  correct=0
-  total=0
+        net.train(False) # Set Network to evaluation mode
 
-  running_corrects = 0
+        running_loss=0
+        correct=0
+        total=0
 
-  for images, labels in val_dataloader:
-    images = images.to(DEVICE)
-    labels = labels.to(DEVICE)
+        running_corrects = 0
 
-    # Forward Pass
-    outputs = net(images)
+        for images, labels in val_dataloader:
+            images = images.to(DEVICE)
+            labels = labels.to(DEVICE)
 
-    # Compute loss based on output and ground truth
-    loss = criterion(outputs, labels)
-    running_loss+=loss.item()
+            # Forward Pass
+            outputs = net(images)
 
-    # Get predictions
-    _, preds = torch.max(outputs.data, 1)
+            # Compute loss based on output and ground truth
+            loss = criterion(outputs, labels)
+            running_loss+=loss.item()
 
-    total += labels.size(0)
-    correct += preds.eq(labels).sum().item()
+            # Get predictions
+            _, preds = torch.max(outputs.data, 1)
 
-    # Update Corrects
-    running_corrects += torch.sum(preds == labels.data).data.item()
+            total += labels.size(0)
+            correct += preds.eq(labels).sum().item()
 
-  # Calculate Accuracy
-  accuracy = running_corrects / float(len(val_dataset))
+            # Update Corrects
+            running_corrects += torch.sum(preds == labels.data).data.item()
 
-  test_loss=running_loss/len(val_dataloader)
-  accu=100.*correct/total
- 
-  eval_losses.append(test_loss)
-  eval_accu.append(accu)
+        # Calculate Accuracy
+        accuracy = running_corrects / float(len(val_dataset))
 
-  print('Valid Loss: %.3f | Validation Accuracy: %.3f'%(test_loss,accu))
+        test_loss=running_loss/len(val_dataloader)
+        accu=100.*correct/total
+        
+        eval_losses.append(test_loss)
+        eval_accu.append(accu)
 
-  return accu
+        print('Valid Loss: %.3f | Validation Accuracy: %.3f'%(test_loss,accu))
+
+        return accu

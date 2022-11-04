@@ -1,57 +1,59 @@
-def train(epoch, net):
+class Train():    
 
-  net = net.to(DEVICE)
+    def train(epoch, net):
 
-  net.train(True) # Sets module in training mode
+        net = net.to(DEVICE)
 
-  running_loss=0
-  correct=0
-  total=0
+        net.train(True) # Sets module in training mode
 
-  current_step = 0 # ?????
-  
-  # Iterate over the dataset
-  for images, labels in train_dataloader:
-    # Bring data over the device of choice
-    images = images.to(DEVICE)
-    labels = labels.to(DEVICE)
+        running_loss=0
+        correct=0
+        total=0
 
-    # PyTorch, by default, accumulates gradients after each backward pass
-    # We need to manually set the gradients to zero before starting a new iteration
-    optimizer.zero_grad() # Zero-ing the gradients
+        current_step = 0 # ?????
+        
+        # Iterate over the dataset
+        for images, labels in train_dataloader:
+            # Bring data over the device of choice
+            images = images.to(DEVICE)
+            labels = labels.to(DEVICE)
 
-    # Forward pass to the network
-    outputs = net(images)
+            # PyTorch, by default, accumulates gradients after each backward pass
+            # We need to manually set the gradients to zero before starting a new iteration
+            optimizer.zero_grad() # Zero-ing the gradients
 
-    # Compute loss based on output and ground truth
-    loss = criterion(outputs, labels)
+            # Forward pass to the network
+            outputs = net(images)
 
-    """
-    # Log loss
-    if current_step % LOG_FREQUENCY == 0:
-      print('Step {}, Loss {}'.format(current_step, loss.item()))
-    """
+            # Compute loss based on output and ground truth
+            loss = criterion(outputs, labels)
 
-    # Compute gradients for each layer and update weights
-    loss.backward()  # backward pass: computes gradients
-    optimizer.step() # update weights based on accumulated gradients
+            """
+            # Log loss
+            if current_step % LOG_FREQUENCY == 0:
+            print('Step {}, Loss {}'.format(current_step, loss.item()))
+            """
 
-    running_loss += loss.item()
+            # Compute gradients for each layer and update weights
+            loss.backward()  # backward pass: computes gradients
+            optimizer.step() # update weights based on accumulated gradients
 
-    _, predicted = outputs.max(1)
-    total += labels.size(0)
-    correct += predicted.eq(labels).sum().item()
+            running_loss += loss.item()
 
-    current_step += 1
+            _, predicted = outputs.max(1)
+            total += labels.size(0)
+            correct += predicted.eq(labels).sum().item()
 
-  train_loss=running_loss/len(train_dataloader)
-  accu=100.*correct/total
+            current_step += 1
 
-  train_accu.append(accu)
-  train_losses.append(train_loss)
-  print('Train Loss: %.3f | Train Accuracy: %.3f'%(train_loss,accu))
+        train_loss=running_loss/len(train_dataloader)
+        accu=100.*correct/total
 
-  # Step the scheduler
-  scheduler.step() 
+        train_accu.append(accu)
+        train_losses.append(train_loss)
+        print('Train Loss: %.3f | Train Accuracy: %.3f'%(train_loss,accu))
 
-  return net
+        # Step the scheduler
+        scheduler.step() 
+
+        return net
