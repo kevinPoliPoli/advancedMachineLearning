@@ -153,7 +153,8 @@ class Caltech(VisionDataset):
                 for image in os.listdir("/content/Caltech101/101_ObjectCategories/"+subFolder):
                   if (image.__eq__(imageName)):
                     converted = pil_loader("/content/Caltech101/101_ObjectCategories/"+subFolder+"/"+image)
-                    self.dataset.append((converted,dictionary[className]))
+                    transformed = transform(converted)
+                    self.dataset.append((transformed, dictionary[className]))
         '''
         - Here you should implement the logic for reading the splits files and accessing elem
         - If the RAM size allows it, it is faster to store all data in memory
