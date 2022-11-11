@@ -1,9 +1,8 @@
 
 from typing import SupportsInt
 from torchvision.datasets import VisionDataset
-
+import torchvision.transforms as transforms
 from PIL import Image
-
 import os
 import os.path
 import sys
@@ -23,6 +22,16 @@ def pil_loader(path):
     with open(path, 'rb') as f:
         img = Image.open(f)
         return img.convert('RGB')
+      
+def augment_pipeline(sample):
+  transformation1 = transforms.Compose(transforms.RandomHorizontalFlip(p=1))
+  transformation2 = transforms.Compose(transforms.ColorJitter(brightness=(0.5,1.5),contrast=(1),saturation=(0.5,1.5),hue=(-0.1,0.1)))
+  transformation3 = transforms.Compose(transforms.ColorJitter(brightness=(0.5,1.5),contrast=(1),saturation=(0.5,1.5),hue=(-0.1,0.1)),transforms.RandomHorizontalFlip(p=1))
+  sample1 = transformation1(sample)
+  sample2 = transformation1(sample)
+  sample3 = transformation1(sample)
+  return sample1, sample2, sample3
+
 
 dictionary = {
   'lamp' : 0,
@@ -133,17 +142,22 @@ class Caltech(VisionDataset):
 
     dataset = []
 
-    def __init__(self, root, split='train', transform=None, target_transform=None):
+    def __init__(self, root, augment, split='train', transform=None, target_transform=None):
         super(Caltech, self).__init__(root, transform=transform, target_transform=target_transform)
 
         self.split = str(split) # This defines the split you are going to use
                            # (split files are called 'train.txt' and 'test.txt')
 
         self.dataset = []
+        
+        import shutil
+        temp = open("temp.txt", "w")
+        shutil.copyfile("/content/Caltech101/"+split+".txt",temp)
+        temp.close()
 
         print("reading "+split+".txt ...")
         num_lines = sum(1 for line in open("/content/Caltech101/"+split+".txt",'r'))
-        with open("/content/Caltech101/"+split+".txt",'r') as f:
+        with open(temp,'r') as f:
           for line in tqdm(f, total=num_lines):
             line = line.strip()
             className = line.split('/')[0].strip()
@@ -155,6 +169,16 @@ class Caltech(VisionDataset):
                     converted = pil_loader("/content/Caltech101/101_ObjectCategories/"+subFolder+"/"+image)
                     transformed = transform(converted)
                     self.dataset.append((transformed, dictionary[className]))
+                    if augment:
+                      sample1, sample2, sample3 = augment_pipeline(transformed)
+                      self.dataset.append((sample1, dictionary[className]))
+                      self.dataset.append((sample2, dictionary[className]))
+                      self.dataset.append((sample3, dictionary[className]))
+                      temp.append(subFolder + "/" + image)
+                      temp.append(subFolder + "/" + image)
+                      temp.append(subFolder + "/" + image)
+
+          
         '''
         - Here you should implement the logic for reading the splits files and accessing elem
         - If the RAM size allows it, it is faster to store all data in memory
