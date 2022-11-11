@@ -142,7 +142,7 @@ class Caltech(VisionDataset):
 
     dataset = []
 
-    def __init__(self, root, augment, split='train', transform=None, target_transform=None):
+    def __init__(self, root, split='train', transform=None, target_transform=None):
         super(Caltech, self).__init__(root, transform=transform, target_transform=target_transform)
 
         self.split = str(split) # This defines the split you are going to use
