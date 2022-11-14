@@ -28,8 +28,8 @@ def augment_pipeline(sample):
   transformation2 = transforms.Compose(transforms.ColorJitter(brightness=(0.5,1.5),contrast=(1),saturation=(0.5,1.5),hue=(-0.1,0.1)))
   transformation3 = transforms.Compose(transforms.ColorJitter(brightness=(0.5,1.5),contrast=(1),saturation=(0.5,1.5),hue=(-0.1,0.1)),transforms.RandomHorizontalFlip(p=1))
   sample1 = transformation1(sample)
-  sample2 = transformation1(sample)
-  sample3 = transformation1(sample)
+  sample2 = transformation2(sample)
+  sample3 = transformation3(sample)
   return sample1, sample2, sample3
 
 
@@ -142,8 +142,10 @@ class Caltech(VisionDataset):
 
     dataset = []
 
-    def __init__(self, root, split='train', transform=None, target_transform=None):
+    def __init__(self, root, augment, split='train', transform=None, target_transform=None):
         super(Caltech, self).__init__(root, transform=transform, target_transform=target_transform)
+        
+        self.augment = augment
 
         self.split = str(split) # This defines the split you are going to use
                            # (split files are called 'train.txt' and 'test.txt')
