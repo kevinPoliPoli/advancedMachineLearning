@@ -24,9 +24,9 @@ def pil_loader(path):
         return img.convert('RGB')
       
 def augment_pipeline(sample):
-  transformation1 = transforms.Compose(transforms.RandomHorizontalFlip(p=1))
-  transformation2 = transforms.Compose(transforms.ColorJitter(brightness=(0.5,1.5),contrast=(1),saturation=(0.5,1.5),hue=(-0.1,0.1)))
-  transformation3 = transforms.Compose(transforms.ColorJitter(brightness=(0.5,1.5),contrast=(1),saturation=(0.5,1.5),hue=(-0.1,0.1)),transforms.RandomHorizontalFlip(p=1))
+  transformation1 = transforms.Compose([transforms.RandomHorizontalFlip(p=1)])
+  transformation2 = transforms.Compose([transforms.ColorJitter(brightness=(0.5,1.5),contrast=(1),saturation=(0.5,1.5),hue=(-0.1,0.1))])
+  transformation3 = transforms.Compose([transforms.RandomHorizontalFlip(p=1), transforms.ColorJitter(brightness=(0.5,1.5),contrast=(1),saturation=(0.5,1.5),hue=(-0.1,0.1))])
   sample1 = transformation1(sample)
   sample2 = transformation2(sample)
   sample3 = transformation3(sample)
@@ -154,12 +154,12 @@ class Caltech(VisionDataset):
         
         import shutil
         temp = open("temp.txt", "w")
-        shutil.copyfile("/content/Caltech101/"+split+".txt",temp)
+        shutil.copyfile("/content/Caltech101/"+split+".txt","/content/temp.txt")
         temp.close()
 
         print("reading "+split+".txt ...")
         num_lines = sum(1 for line in open("/content/Caltech101/"+split+".txt",'r'))
-        with open(temp,'r') as f:
+        with open("temp.txt",'r') as f:
           for line in tqdm(f, total=num_lines):
             line = line.strip()
             className = line.split('/')[0].strip()
@@ -168,6 +168,7 @@ class Caltech(VisionDataset):
               if (subFolder != "BACKGROUND_Google" and subFolder==className):
                 for image in os.listdir("/content/Caltech101/101_ObjectCategories/"+subFolder):
                   if (image.__eq__(imageName)):
+                    temp.append(subFolder + "/" + image)
                     converted = pil_loader("/content/Caltech101/101_ObjectCategories/"+subFolder+"/"+image)
                     transformed = transform(converted)
                     self.dataset.append((transformed, dictionary[className]))
@@ -176,10 +177,11 @@ class Caltech(VisionDataset):
                       self.dataset.append((sample1, dictionary[className]))
                       self.dataset.append((sample2, dictionary[className]))
                       self.dataset.append((sample3, dictionary[className]))
-                      temp.append(subFolder + "/" + image)
-                      temp.append(subFolder + "/" + image)
-                      temp.append(subFolder + "/" + image)
-
+                      temp.append(subFolder + "/" + image + "1")
+                      temp.append(subFolder + "/" + image + "2")
+                      temp.append(subFolder + "/" + image + "3")
+                      temp.append()
+        temp.close()
           
         '''
         - Here you should implement the logic for reading the splits files and accessing elem
